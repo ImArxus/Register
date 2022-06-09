@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="kwikemart-register">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dep/kwikemart-register.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/dep/kwikemart-register.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
