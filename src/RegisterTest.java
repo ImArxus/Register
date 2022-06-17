@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import stev.kwikemart.AmountException;
@@ -13,26 +12,12 @@ import stev.kwikemart.InvalidQuantityException.InvalidQuantityForCategoryExcepti
 import stev.kwikemart.Item;
 import stev.kwikemart.PaperRoll;
 import stev.kwikemart.Register;
+import stev.kwikemart.Register.NoSuchItemException;
 import stev.kwikemart.RegisterException.EmptyGroceryListException;
 import stev.kwikemart.RegisterException.TooManyItemsException;
 import stev.kwikemart.Upc;
 
 public class RegisterTest {
-
-	/*
-	 * Test invalides
-	 * 
-	 * - Ajouter un item dans le panier avec prix unitaire négatif, 0 ou supérieur à
-	 * 35$ - Ajouter une autre valeur que 2 pour le code des produit vendu au poids
-	 * 
-	 * 
-	 * 
-	 */
-
-	/*
-	 * Test valides
-	 * 
-	 */
 
 	private List<Item> grocery = new ArrayList<Item>();
 	// Récupère l'instance de la caisse et met un petit rouleau de papier
@@ -45,12 +30,21 @@ public class RegisterTest {
 
 	// TEST VALIDES
 
+	/**
+	 * Tester le CUP. Il doit être différent de -1 et de 12 caractères pour être
+	 * considéré comme valide
+	 */
 	@Test
 	public void validCUP() {
 		String CUP = Upc.generateCode("12345678901");
 		assertNotEquals(-1, Upc.getCheckDigit(CUP));
+		assertEquals(12, CUP.length());
 	}
 
+	/**
+	 * Tester si le CUP d'un produit pesable (quantité farctionnaire) commence bien
+	 * par un 2
+	 */
 	@Test
 	public void validCUP_WeighableItem() {
 		String CUP = Upc.generateCode("22345678901");
@@ -58,17 +52,25 @@ public class RegisterTest {
 		register.print(grocery);
 	}
 
+	/**
+	 * Tester si le prix au détail d'un produit est bien celui entré dans son
+	 * constructeur
+	 */
 	@Test
 	public void validItemAmount() {
 		assertEquals(3.05, new Item(Upc.generateCode("12345678901"), "Chocolate", 1, 3.05).getRetailPrice());
 	}
 
+	/**
+	 * Tester si il est possible d'ajouter au ticket une liste de produits de taille
+	 * comprise entre 0 et 10 inclus
+	 */
 	@Test
 	public void validListLength() {
 		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
 		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 7.50));
 
-		System.out.println(register.print(grocery)); // TODO : pourquoi on a 3 tickets vide avant ?
+		System.out.println(register.print(grocery)); // TODO : pourquoi on a des tickets vides avant ?
 	}
 
 	// TEST INVALIDES
@@ -110,7 +112,7 @@ public class RegisterTest {
 	@Test
 	public void invalidCodeQuantityValue() {
 		assertThrows(InvalidQuantityException.class, () -> {
-			grocery.add(new Item(Upc.generateCode("22804918500"), "Beef", 3, 5.75));
+			grocery.add(new Item(Upc.generateCode("22804918500"), "Flower", 3, 5.75));
 			register.print(grocery);
 		});
 	}
@@ -133,22 +135,20 @@ public class RegisterTest {
 	@Test
 	public void tooManyItemGroceryList() {
 		assertThrows(TooManyItemsException.class, () -> {
-			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918502"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918503"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918504"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918505"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918506"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918507"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918508"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918509"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918510"), "Beef", 1, 5.75));
-			grocery.add(new Item(Upc.generateCode("12804918511"), "Beef", 1, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918502"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918503"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918504"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918505"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918506"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918507"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918508"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918509"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918510"), "Beef", 0.5, 5.75));
+			grocery.add(new Item(Upc.generateCode("12804918511"), "Beef", 0.5, 5.75));
 
 			register.print(grocery);
 		});
-
-		register.changePaper(PaperRoll.LARGE_ROLL);
 	}
 
 	/*
@@ -161,6 +161,18 @@ public class RegisterTest {
 		assertThrows(InvalidQuantityForCategoryException.class, () -> {
 			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 0.5, 5.75));
 			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 0.5, 5.75));
+			register.print(grocery);
+		});
+	}
+
+	/*
+	 * Tester la suppression d'un produit qui n'existe pas dans la liste Résultat
+	 * attendu : Exception Résultat obtenu : Correct
+	 */
+	@Test
+	public void deleteItemGroceryListWhenItemNotExisting() {
+		assertThrows(NoSuchItemException.class, () -> {
+			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", -1, 5.75));
 			register.print(grocery);
 		});
 	}
