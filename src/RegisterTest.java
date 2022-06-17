@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import stev.kwikemart.AmountException;
 import stev.kwikemart.InvalidQuantityException;
 import stev.kwikemart.InvalidQuantityException.InvalidQuantityForCategoryException;
+import stev.kwikemart.InvalidUpcException;
 import stev.kwikemart.Item;
 import stev.kwikemart.PaperRoll;
 import stev.kwikemart.Register;
@@ -27,9 +28,18 @@ class RegisterTest {
 	 * 
 	 * 
 	 */
-		
+	
+	
+	/*Test valides
+	 * 
+	 */
+	
+	
+	
+	
 	private List<Item> grocery;
 	private Register register;
+
 
 	@BeforeEach
 	public void setUp() {
@@ -38,6 +48,7 @@ class RegisterTest {
 		
         // Put the small roll of paper into the register
         register.changePaper(PaperRoll.SMALL_ROLL);
+
 	}
 	
 	
@@ -46,22 +57,10 @@ class RegisterTest {
         grocery.clear();
 	}
     
-	/*************************************************************************************/
-	/* 																					 */
-	/* 									   TEST VALIDES								 	 */
-	/* 																					 */
-	/*************************************************************************************/
     
-    @Test
-    public void validCUP() {
-    	
-    }
     
-	/*************************************************************************************/
-	/* 																					 */
-	/* 									  TEST INVALIDES								 */
-	/* 																					 */
-	/*************************************************************************************/
+    //INVALIDES TEST
+    
     
     @Test
 	public void invalidSuperiorAmount() {
@@ -72,6 +71,7 @@ class RegisterTest {
         grocery.clear();
 	}
     
+    
     @Test
 	public void invalidNegativeAmount() {
 		assertThrows(AmountException.class, () -> {
@@ -81,41 +81,50 @@ class RegisterTest {
         grocery.clear();
 	}
     
-<<<<<<< HEAD
-    @Test
-	public void invalidNullAmount() {
-		assertThrows(NullPointerException.class, () -> {
-			grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, (Double) null));
-   	        System.out.println(register.print(grocery));
-		});
-        grocery.clear();
-	}
     
     
     
 
     
     
-=======
->>>>>>> dfadb6a752401eafabac6db8b0264a487edfbec5
     /*
      * Tester si un produit vendu au poids peut prendre une autre valeur que 2 pour le premier chiffre de son code
-     * 
+     * Résultat attendu : Exception
+     * Résultat obtenu : Correct
      */
     @Test
-   	public void invalidQuantityValue() {
+   	public void InvalidCodeForFractionnaryQuantityValue() {
    		assertThrows(InvalidQuantityException.class, () -> {
    	    	grocery.add(new Item(Upc.generateCode("12804918500"), "Beef", 0.5, 5.75));
    	        System.out.println(register.print(grocery));
    		});
         grocery.clear();
    	}
-        
+    
     /*
-     * Tester si la caisse n'accepte pas les listes avec 0 articles  
+     * Tester si un produit qui n'est pas vendu au poids peut prendre la valeur 2 pour le premier chiffre de son code
+     * Résultat attendu : Exception
+     * Résultat obtenu : Pas correct
      */
     @Test
-   	public void emptyGroceryListItem() {
+   	public void InvalidCodeQuantityValue() {
+   		assertThrows(InvalidQuantityException.class, () -> {
+   	    	grocery.add(new Item(Upc.generateCode("22804918500"), "Beef", 3, 5.75));
+   	        System.out.println(register.print(grocery));
+   		});
+        grocery.clear();
+   	}
+    
+    
+    
+    
+    /*
+     * Tester si la caisse n'accepte pas les listes avec 0 articles  
+     * Résultat attendu : Exception
+     * Résultat obtenu : Correct
+     */
+    @Test
+   	public void EmptyGroceryListItem() {
    		assertThrows(EmptyGroceryListException.class, () -> {
    	        System.out.println(register.print(grocery));
    		});
@@ -124,9 +133,11 @@ class RegisterTest {
     /*
      * Tester si la caisse n'accepte pas les listes plus de 10 articles  
      * Ici testé avec 11 produits
+     * Résultat attendu : Exception
+     * Résultat obtenu : Correct
      */
     @Test
-   	public void tooManyItemGroceryList() {
+   	public void TooManyItemGroceryList() {
    		assertThrows(TooManyItemsException.class, () -> {
    	    	grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 0.5, 5.75));
    	    	grocery.add(new Item(Upc.generateCode("12804918502"), "Beef", 0.5, 5.75));
@@ -144,12 +155,15 @@ class RegisterTest {
    		});
    	}
     
+    
     /*
      * Tester l'ajout de plusieurs produits avec le même code dans la liste d'item de la caisse
      * Ici testé avec 2 produits 
+     * Résultat attendu : Exception
+     * Résultat obtenu : Correct
      */
     @Test
-   	public void duplicateItemGroceryList() {
+   	public void DuplicateItemGroceryList() {
    		assertThrows(InvalidQuantityForCategoryException.class, () -> {
    			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 0.5, 5.75));
    	    	grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 0.5, 5.75));
