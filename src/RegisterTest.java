@@ -81,9 +81,18 @@ class RegisterTest {
         grocery.clear();
 	}
     
+    @Test
+	public void invalidNullAmount() {
+		assertThrows(NullPointerException.class, () -> {
+			grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, (Double) null));
+   	        System.out.println(register.print(grocery));
+		});
+        grocery.clear();
+	}
     
     
     
+
     
     
     /*
@@ -114,6 +123,7 @@ class RegisterTest {
     
     /*
      * Tester si la caisse n'accepte pas les listes plus de 10 articles  
+     * Ici testé avec 11 produits
      */
     @Test
    	public void TooManyItemGroceryList() {
@@ -136,7 +146,8 @@ class RegisterTest {
     
     
     /*
-     * Tester l'ajout de deux produit avec le même code 
+     * Tester l'ajout de plusieurs produits avec le même code dans la liste d'item de la caisse
+     * Ici testé avec 2 produits 
      */
     @Test
    	public void DuplicateItemGroceryList() {
