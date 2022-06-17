@@ -14,6 +14,7 @@ import stev.kwikemart.InvalidUpcException;
 import stev.kwikemart.Item;
 import stev.kwikemart.PaperRoll;
 import stev.kwikemart.Register;
+import stev.kwikemart.Register.NoSuchItemException;
 import stev.kwikemart.RegisterException.EmptyGroceryListException;
 import stev.kwikemart.RegisterException.TooManyItemsException;
 import stev.kwikemart.Upc;
@@ -167,6 +168,19 @@ class RegisterTest {
    		assertThrows(InvalidQuantityForCategoryException.class, () -> {
    			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 0.5, 5.75));
    	    	grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 0.5, 5.75));
+   	        System.out.println(register.print(grocery));
+   		});
+   	}
+    
+    /*
+     * Tester la suppression d'un produit qui n'existe pas dans la liste
+     * Résultat attendu : Exception
+     * Résultat obtenu : Correct
+     */
+    @Test
+   	public void DeleteItemGroceryListWhenItemNotExisting() {
+   		assertThrows(NoSuchItemException.class, () -> {
+   			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", -1, 5.75));
    	        System.out.println(register.print(grocery));
    		});
    	}
