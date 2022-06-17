@@ -1,4 +1,4 @@
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,8 @@ class RegisterTest {
     
     @Test
     public void validCUP() {
-    	
+    	String CUP = Upc.generateCode("12345678901");
+    	assertNotEquals(-1, Upc.getCheckDigit(CUP));
     }
     
 	/*************************************************************************************/
