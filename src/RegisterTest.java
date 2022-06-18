@@ -82,7 +82,7 @@ public class RegisterTest {
 	@Test
 	public void invalidSuperiorAmount() {
 		assertThrows(AmountException.class, () -> {
-			grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 1.96));
+			grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 37));
 			register.print(grocery);
 		});
 	}
