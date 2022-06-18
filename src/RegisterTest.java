@@ -62,7 +62,12 @@ class RegisterTest {
     
     //INVALIDES TEST
     
-    
+    /*
+     * Tester si l'on ajoute un item avec un prix supérieur à 35$ dans la caisse
+     * Ici testé avec un pirx de 37$
+     * Résultat attendu : Exception
+     * Résultat obtenu : Correct
+     */
     @Test
 	public void invalidSuperiorAmount() {
 		assertThrows(AmountException.class, () -> {
@@ -72,7 +77,12 @@ class RegisterTest {
         grocery.clear();
 	}
     
-    
+    /*
+     * Tester si l'on ajoute un item avec un prix negatif dans la caisse
+     * Ici testé avec un pirx de -1$
+     * Résultat attendu : Exception
+     * Résultat obtenu : Correct
+     */
     @Test
 	public void invalidNegativeAmount() {
 		assertThrows(AmountException.class, () -> {
@@ -84,9 +94,7 @@ class RegisterTest {
     
     
     
-    
-
-    
+   
     
     /*
      * Tester si un produit vendu au poids peut prendre une autre valeur que 2 pour le premier chiffre de son code
@@ -116,7 +124,7 @@ class RegisterTest {
         grocery.clear();
    	}
     
-    
+ 
     
     
     /*
@@ -184,7 +192,7 @@ class RegisterTest {
    	        System.out.println(register.print(grocery));
    		});
    	}
+    
 	
-
 
 }
