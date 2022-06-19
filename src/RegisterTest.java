@@ -10,7 +10,6 @@ import stev.kwikemart.AmountException;
 import stev.kwikemart.AmountException.NegativeAmountException;
 import stev.kwikemart.InvalidQuantityException;
 import stev.kwikemart.InvalidQuantityException.InvalidQuantityForCategoryException;
-import stev.kwikemart.InvalidUpcException;
 import stev.kwikemart.InvalidUpcException.UpcTooLongException;
 import stev.kwikemart.InvalidUpcException.UpcTooShortException;
 import stev.kwikemart.Item;
@@ -77,20 +76,65 @@ public class RegisterTest {
 		System.out.println(register.print(grocery)); // TODO : pourquoi on a des tickets vides avant ?
 	}
 
+	/*
+	 * On teste l'application d'un coupon dans le cas où le coupon est inferieur au
+	 * prix total et le coupon est d'une valeur positif
+	 * 
+	 */
+	@Test
+	public void validCoupon() {
+		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
+		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 7.50));
+		grocery.add(new Item(Upc.generateCode("52804918502"), "Sheep", 1, 1.50));
+
+		System.out.println(register.print(grocery));
+	}
+
+	/*
+	 * On verifie l'application du rabais de 1$ quand 5 articles sont ajoutés au
+	 * panier
+	 */
+	@Test
+	public void valid5ItemsDiscount() {
+		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
+		grocery.add(new Item(Upc.generateCode("22804918500"), "Flower", 3, 5.75));
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 1.96));
+		grocery.add(new Item(Upc.generateCode("12645678901"), "Chocolate", 1, 3.05));
+		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 7.50));
+		System.out.println(register.print(grocery));
+	}
+
+	/**
+	 * On teste si l'on peut enlever un produit déjà existant en ajoutant ce même
+	 * produit mais avec une quantité négative
+	 */
+	@Test
+	public void validRemoveItem() {
+		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 3, 7.50));
+		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", -1, 7.50));
+		System.out.println(register.print(grocery));
+	}
+
 	// TEST INVALIDES
 
+	/**
+	 * On teste le cas où le prix unitaire d'un article est supérieur à 35$
+	 */
 	@Test
 	public void invalidSuperiorAmount() {
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 37));
 		assertThrows(AmountException.class, () -> {
-			grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 37));
 			register.print(grocery);
 		});
 	}
 
+	/**
+	 * On teste le cas où lep prix d'un article est négatif
+	 */
 	@Test
 	public void invalidNegativeAmount() {
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, -1));
 		assertThrows(AmountException.class, () -> {
-			grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, -1));
 			register.print(grocery);
 		});
 	}
@@ -180,155 +224,95 @@ public class RegisterTest {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test rabais prix coupon
-	 */
-	/*
-	 * Valide
-	 */
-	
-	/*
-	 * On teste l'application d'un coupon dans le cas ou le coupon 
-	 * est inferieur au prix total et le coupon est d'un valeur positif
+	 * On teste l'application d'un coupon dans le cas où le coupon est d'une valeur
+	 * négative
 	 * 
 	 */
-	
+
 	@Test
-	public void validCouponApplication() {
-		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
-        grocery.add(new Item(Upc.generateCode("54323432343"), "Doritos Club", 1, 0.5));
-        register.print(grocery);	
-	}
-	/*
-	 * Invalide
-	 */
-	
-	/*
-	 * On teste l'application d'un coupon dans le cas ou le coupon est d'un valeur negatif
-	 * 
-	 */
-	
-	@Test
-	public void InvalidNegativeCouponApplication() {
+	public void invalidNegativeCouponApplication() {
 		assertThrows(NegativeAmountException.class, () -> {
-		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
-        grocery.add(new Item(Upc.generateCode("54323432343"), "Doritos Club", 1, -0.5));
-        register.print(grocery);	
-	});
+			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
+			grocery.add(new Item(Upc.generateCode("54323432343"), "Doritos Club", 1, -0.5));
+			register.print(grocery);
+		});
 	}
+
 	/*
-	 * On teste l'application d'un coupon dans le cas ou le coupon est 
-	 * d'un valeur superieur au total d'achat
+	 * On teste l'application d'un coupon dans le cas où le coupon est d'une valeur
+	 * superieur au total d'achat
 	 * 
-	 * On remarque que le coupon n'est pas applique
-	 * 
+	 * On remarque que le coupon n'est pas appliqué
 	 */
-	
 	@Test
-	public void InvalidSuperieurCouponApplication() {
+	public void invalidSuperieurCouponApplication() {
 		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
-        grocery.add(new Item(Upc.generateCode("54323432343"), "Doritos Club", 1, 10));
-        register.print(grocery);	
+		grocery.add(new Item(Upc.generateCode("54323432343"), "Doritos Club", 1, 10));
+		register.print(grocery);
 	}
-	
+
 	/*
-	 * Test CUP coupon
+	 * On teste l'application d'un coupon dans le cas où le coupon possède un CUP de
+	 * moins de 12 chiffres
 	 */
-	/*
-	 * Invalide
-	 */
-	
-	/*
-	 * On teste l'application d'un coupon dans le cas ou le coupon 
-	 * possede un CUP de moins de 12 chiffres
-	 * 
-	 */
-	
 	@Test
-	public void InvalidSmallCUPCoupon() {
+	public void invalidSmallCUPCoupon() {
 		assertThrows(UpcTooShortException.class, () -> {
-		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
-        grocery.add(new Item(Upc.generateCode("5434334343"), "Doritos Club", 1, 0.5));
-        register.print(grocery);	});
+			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
+			grocery.add(new Item(Upc.generateCode("5434334343"), "Doritos Club", 1, 0.5));
+			register.print(grocery);
+		});
 	}
+
 	/*
-	 * On teste l'application d'un coupon dans le cas ou le coupon 
-	 * possede un CUP de plus de 12 chiffres
-	 * 
+	 * On teste l'application d'un coupon dans le cas où le coupon possede un CUP de
+	 * plus de 12 chiffres
 	 */
-	
 	@Test
-	public void InvalidLargeCUPCoupon() {
+	public void invalidLargeCUPCoupon() {
 		assertThrows(UpcTooLongException.class, () -> {
-		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
-        grocery.add(new Item(Upc.generateCode("5434334343343"), "Doritos Club", 1, 0.5));
-        register.print(grocery);	});
+			grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
+			grocery.add(new Item(Upc.generateCode("5434334343343"), "Doritos Club", 1, 0.5));
+			register.print(grocery);
+		});
 	}
-	
+
 	/*
-	 * Test rabais 5 items
+	 * On verifie l'application du rabais quand 5 articles du même CUP sont ajoutés
+	 * au panier
 	 */
-	/*
-	 * valide
-	 */
-	
-	/*
-	 * On verifie l'application du rabais quand 5 articles sont ajoutes au panier
-	 */
-	
-	
 	@Test
-	public void Valid5itemsDiscount() {
-		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
-		grocery.add(new Item(Upc.generateCode("22804918500"), "Flower", 3, 5.75));
-		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 1.96));
-		grocery.add(new Item(Upc.generateCode("12645678901"), "Chocolate", 1, 3.05));
-		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 7.50));
-		register.print(grocery);	
-	}
-	
-	/*
-	 * Invalide
-	 */
-	
-	/*
-	 * On verifie l'application du rabais quand 5 articles du meme CUP sont ajoutes au panier
-	 */
-	
-	@Test
-	public void InvalidSameCUPItemsDiscount() {
+	public void invalidSameCUPItemsDiscount() {
 		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 6, 5.75));
-        register.print(grocery);	
+		register.print(grocery);
 	}
-	
+
 	/*
-	 * On verifie l'application du rabais quand 4 articles sont ajoutes au panier
+	 * On verifie l'application du rabais quand 4 articles sont ajoutés au panier
 	 */
-	
 	@Test
-	public void Invalid4temsDiscount() {
+	public void invalid4temsDiscount() {
 		grocery.add(new Item(Upc.generateCode("22804918500"), "Flower", 3, 5.75));
 		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 1.96));
 		grocery.add(new Item(Upc.generateCode("12645678901"), "Chocolate", 1, 3.05));
 		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 7.50));
-		register.print(grocery);	
+		register.print(grocery);
 	}
-	
+
 	/*
-	 * On verifie l'application du rabais quand 5 articles avec une valeur totale de 
-	 * moins de 2 dollars sont ajoutes au panier
+	 * On verifie l'application du rabais quand 5 articles avec une valeur totale de
+	 * moins de 2$ sont ajoutés au panier
 	 */
-	
 	@Test
-	public void InvalidPriceDiscount() {
+	public void invalidPriceDiscount() {
 		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 0.1));
-		grocery.add(new Item(Upc.generateCode("22804918500"), "Flower", 3,  0.1));
-		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1,  0.1));
-		grocery.add(new Item(Upc.generateCode("12645678901"), "Chocolate", 1,  0.1));
-		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1,  0.1));
-		System.out.print(register.print(grocery));	
+		grocery.add(new Item(Upc.generateCode("22804918500"), "Flower", 3, 0.1));
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 0.1));
+		grocery.add(new Item(Upc.generateCode("12645678901"), "Chocolate", 1, 0.1));
+		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 0.1));
+		System.out.print(register.print(grocery));
 	}
-	
 
 }
