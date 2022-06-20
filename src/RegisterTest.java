@@ -97,8 +97,9 @@ public class RegisterTest {
 
 	/*
 	 * Tester si un produit vendu au poids peut prendre une autre valeur que 2 pour
-	 * le premier chiffre de son code Résultat attendu : Exception Résultat obtenu :
-	 * Correct
+	 * le premier chiffre de son code 
+	 * Résultat attendu : Exception
+	 * Résultat obtenu : Correct
 	 */
 	@Test
 	public void invalidCodeForFractionnaryQuantityValue() {
@@ -110,8 +111,9 @@ public class RegisterTest {
 
 	/*
 	 * Tester si un produit qui n'est pas vendu au poids peut prendre la valeur 2
-	 * pour le premier chiffre de son code Résultat attendu : Exception Résultat
-	 * obtenu : Pas correct
+	 * pour le premier chiffre de son code 
+	 * Résultat attendu : Exception 
+	 * Résultat obtenu : Pas correct
 	 */
 	@Test
 	public void invalidCodeQuantityValue() {
@@ -122,8 +124,9 @@ public class RegisterTest {
 	}
 
 	/*
-	 * Tester si la caisse n'accepte pas les listes avec 0 articles Résultat attendu
-	 * : Exception Résultat obtenu : Correct
+	 * Tester si la caisse n'accepte pas les listes avec 0 articles 
+	 * Résultat attendu : Exception
+	 * Résultat obtenu : Correct
 	 */
 	@Test
 	public void emptyGroceryListItem() {
@@ -133,8 +136,10 @@ public class RegisterTest {
 	}
 
 	/*
-	 * Tester si la caisse n'accepte pas les listes plus de 10 articles Ici testé
-	 * avec 11 produits Résultat attendu : Exception Résultat obtenu : Correct
+	 * Tester si la caisse n'accepte pas les listes plus de 10 articles
+	 * Ici testé avec 11 produits
+	 * Résultat attendu : Exception
+	 * Résultat obtenu : Correct
 	 */
 	@Test
 	public void tooManyItemGroceryList() {
@@ -157,8 +162,10 @@ public class RegisterTest {
 
 	/*
 	 * Tester l'ajout de plusieurs produits avec le même code dans la liste d'item
-	 * de la caisse Ici testé avec 2 produits Résultat attendu : Exception Résultat
-	 * obtenu : Correct
+	 * de la caisse 
+	 * Ici testé avec 2 produits 
+	 * Résultat attendu : Exception 
+	 * Résultat obtenu : Correct
 	 */
 	@Test
 	public void duplicateItemGroceryList() {
@@ -170,8 +177,9 @@ public class RegisterTest {
 	}
 
 	/*
-	 * Tester la suppression d'un produit qui n'existe pas dans la liste Résultat
-	 * attendu : Exception Résultat obtenu : Correct
+	 * Tester la suppression d'un produit qui n'existe pas dans la liste 
+	 * Résultat attendu : Exception 
+	 * Résultat obtenu : Correct
 	 */
 	@Test
 	public void deleteItemGroceryListWhenItemNotExisting() {
