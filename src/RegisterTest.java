@@ -14,11 +14,23 @@ import stev.kwikemart.InvalidUpcException.UpcTooLongException;
 import stev.kwikemart.InvalidUpcException.UpcTooShortException;
 import stev.kwikemart.Item;
 import stev.kwikemart.PaperRoll;
+import stev.kwikemart.PaperRollException;
 import stev.kwikemart.Register;
 import stev.kwikemart.Register.NoSuchItemException;
 import stev.kwikemart.RegisterException.EmptyGroceryListException;
 import stev.kwikemart.RegisterException.TooManyItemsException;
 import stev.kwikemart.Upc;
+
+/**
+ * @author LE BALANGER Alexandre - LEBA20129906
+ * @author DOLLO Vincent - DOLV26029901
+ * @author MARTINEZ Eloy - MARE12089900
+ * @author KHODJA Meziane - KHOM26099900
+ */
+
+/**
+ * TODO : liste des classes d'équivalence TODO : heuristique
+ */
 
 public class RegisterTest {
 
@@ -32,6 +44,28 @@ public class RegisterTest {
 	}
 
 	// TEST VALIDES
+
+	/**
+	 * On vérifie que la taille du rouleau de papier est suffisante pour toutes les
+	 * infos à écrire sur le reçu
+	 * 
+	 * Résultat attendu : toutes les lignes de la facture apparaissent bien sur le
+	 * reçu et nous ne recevons aucune Exception
+	 */
+	@Test
+	public void validPaperRollSize() {
+		register.changePaper(PaperRoll.SMALL_ROLL);
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 1.5));
+		grocery.add(new Item(Upc.generateCode("22804918500"), "Beef", 0.5, 5.75));
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", -1, 1.5));
+		grocery.add(new Item(Upc.generateCode("64748119599"), "Chewing gum", 2, 0.99));
+		grocery.add(new Item(Upc.generateCode("44348225996"), "Gobstoppers", 1, 0.99));
+		grocery.add(new Item(Upc.generateCode("34323432343"), "Nerds", 2, 1.44));
+		grocery.add(new Item(Upc.generateCode("54323432343"), "Doritos Club", 1, 0.5));
+		grocery.add(new Item(Upc.generateCode("61519314159"), "Doritos", 1, 1.25));
+		System.out.println(register.print(grocery));
+		register.changePaper(PaperRoll.LARGE_ROLL);
+	}
 
 	/**
 	 * Tester le CUP. Il doit être différent de -1 et de 12 caractères pour être
@@ -83,8 +117,7 @@ public class RegisterTest {
 	public void validListLength() {
 		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
 		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 7.50));
-
-		System.out.println(register.print(grocery)); // TODO : pourquoi on a des tickets vides avant ?
+		System.out.println(register.print(grocery));
 	}
 
 	/*
@@ -99,12 +132,11 @@ public class RegisterTest {
 		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 5.75));
 		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 7.50));
 		grocery.add(new Item(Upc.generateCode("52804918502"), "Sheep", 1, 1.50));
-
 		System.out.println(register.print(grocery));
 	}
 
 	/*
-	 * On verifie l'application du rabais de 1$ quand 5 articles sont ajoutés au
+	 * On vérifie l'application du rabais de 1$ quand 5 articles sont ajoutés au
 	 * panier
 	 * 
 	 * Résultat attendu : les articles apparaissent bien sur le reçu et 1$ de rabais
@@ -117,7 +149,6 @@ public class RegisterTest {
 		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 1.96));
 		grocery.add(new Item(Upc.generateCode("12645678901"), "Chocolate", 1, 3.05));
 		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 7.50));
-
 		System.out.println(register.print(grocery));
 	}
 
@@ -136,6 +167,40 @@ public class RegisterTest {
 	}
 
 	// TEST INVALIDES
+
+	/**
+	 * On vérifie que la taille du rouleau de papier est suffisante pour toutes les
+	 * infos à écrire sur le reçu
+	 * 
+	 * Résultat attendu : PaperRollException.OutOfPaperException
+	 */
+	@Test
+	public void invalidPaperRollSize() {
+		register.changePaper(PaperRoll.SMALL_ROLL);
+
+		// Premier reçu
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 1.5));
+		grocery.add(new Item(Upc.generateCode("22804918500"), "Beef", 0.5, 5.75));
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", -1, 1.5));
+		grocery.add(new Item(Upc.generateCode("64748119599"), "Chewing gum", 2, 0.99));
+		grocery.add(new Item(Upc.generateCode("44348225996"), "Gobstoppers", 1, 0.99));
+		grocery.add(new Item(Upc.generateCode("34323432343"), "Nerds", 2, 1.44));
+		grocery.add(new Item(Upc.generateCode("54323432343"), "Doritos Club", 1, 0.5));
+		grocery.add(new Item(Upc.generateCode("61519314159"), "Doritos", 1, 1.25));
+		System.out.println(register.print(grocery));
+
+		// Second reçu
+		grocery.clear();
+		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 1.5));
+		grocery.add(new Item(Upc.generateCode("22804918500"), "Beef", 0.5, 5.75));
+		grocery.add(new Item(Upc.generateCode("64748119599"), "Chewing gum", 2, 0.99));
+		grocery.add(new Item(Upc.generateCode("44348225996"), "Gobstoppers", 1, 0.99));
+		assertThrows(PaperRollException.OutOfPaperException.class, () -> {
+			register.print(grocery);
+		});
+
+		register.changePaper(PaperRoll.LARGE_ROLL);
+	}
 
 	/**
 	 * On teste le cas où le prix unitaire d'un article est supérieur à 35$
@@ -326,7 +391,8 @@ public class RegisterTest {
 	}
 
 	/*
-	 * On verifie l'application du rabais quand moins de 5 articles sont ajoutés au panier
+	 * On verifie l'application du rabais quand moins de 5 articles sont ajoutés au
+	 * panier
 	 * 
 	 * Résultat attendu : le rabais de 1$ ne doit pas être appliqué
 	 */
