@@ -8,23 +8,17 @@ import org.junit.jupiter.api.Test;
 
 import stev.kwikemart.AmountException;
 import stev.kwikemart.AmountException.NegativeAmountException;
-import stev.kwikemart.InvalidQuantityException;
 import stev.kwikemart.InvalidQuantityException.InvalidQuantityForCategoryException;
 import stev.kwikemart.InvalidUpcException.InvalidCheckDigitException;
-import stev.kwikemart.InvalidUpcException.NoUpcException;
 import stev.kwikemart.InvalidUpcException.UpcTooLongException;
 import stev.kwikemart.InvalidUpcException.UpcTooShortException;
 import stev.kwikemart.Item;
 import stev.kwikemart.PaperRoll;
-import stev.kwikemart.PaperRollException;
 import stev.kwikemart.Register;
 import stev.kwikemart.Register.NoSuchItemException;
 import stev.kwikemart.RegisterException.EmptyGroceryListException;
 import stev.kwikemart.RegisterException.TooManyItemsException;
 import stev.kwikemart.Upc;
-
-//TODO : storeException, Coupon exception, 
-
 
 /**
  * @author LE BALANGER Alexandre - LEBA20129906
@@ -33,9 +27,17 @@ import stev.kwikemart.Upc;
  * @author KHODJA Meziane - KHOM26099900
  */
 
-/**
- * TODO : liste des classes d'équivalence TODO : heuristique
- */
+/******************************************************************************************************
+ *  																								  *
+ *  					 					/!\ COMMENTAIRE							  				  *
+ *  																								  *
+ *  Pour comprendre notre chemin de pensée, nous avons réaliser une documentation plus approfondie    *
+ *  de la liste des classes d'équivalences que nous avons créé ainsi que leur heuristique. Nous y 	  *
+ *  Nous y avons aussi détaillé la liste des combinaisons de PCE que nous avons choisis pour ces      *
+ *  tests. Celui-ci est disponible dans le même fichier .zip que ce fichier de tests sous le nom de   *
+ *  								"Heuristiques & combinaisons TP3"								  *
+ *   																								  *
+ ******************************************************************************************************/
 
 public class RegisterTest {
 
@@ -47,79 +49,100 @@ public class RegisterTest {
 	public void clear() {
 		grocery.clear();
 	}
-	
-	
+
 	/*
-	 * Test qui correspond au test1 de la doc
+	 * On teste d’abord le cas valide pour chacune de nos classes d’équivalence.
+	 * 
+	 * Résultat attendu : tous nos articles (pesable ou non) apparaissent sur la
+	 * facture, le coupon entré déduit la somme donnée (inférieure au prix total de
+	 * la facture), ainsi qu’un rabais de 1$ puisqu’il y a plus de 5 articles
+	 * différents
 	 */
 	@Test
-	public void test1() {
+	public void allValidCase() {
 		grocery.add(new Item(Upc.generateCode("12804918501"), "Beef", 1, 7));
 		grocery.add(new Item(Upc.generateCode("22804918511"), "Beef", 0.5, 7));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 2));
 		grocery.add(new Item(Upc.generateCode("12345678921"), "Bananas", 1, 3));
 		grocery.add(new Item(Upc.generateCode("12645678931"), "Chocolate", 1, 4));
-		grocery.add(new Item(Upc.generateCode("12804918542"), "Sheep", 2,5));
-		grocery.add(new Item(Upc.generateCode("12804918542"), "Sheep", -1,5));
-		grocery.add(new Item(Upc.generateCode("52804918542"), "Reduction Sheep", 1,2));
+		grocery.add(new Item(Upc.generateCode("12804918542"), "Sheep", 2, 5));
+		grocery.add(new Item(Upc.generateCode("12804918542"), "Sheep", -1, 5));
+		grocery.add(new Item(Upc.generateCode("52804918542"), "Reduction Sheep", 1, 2));
 		System.out.print(register.print(grocery));
 	}
-	
-	
+
 	/*
-	 * Test qui correspond au test2 de la doc
+	 * On va tester le cas où un CUP d’un produit va être trop court; il va contenir
+	 * moins de 12 chiffres.
+	 * 
+	 * Résultat attendu : On devrait obtenir une UpcTooShortException car le CUP est
+	 * invalide
 	 */
 	@Test
-	public void test2() {
+	public void tooShortUPC() {
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 2));
 		assertThrows(UpcTooShortException.class, () -> {
 			grocery.add(new Item(Upc.generateCode("1280491850"), "Beef", 1, 7));
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test3 de la doc
+	 * On va tester le cas où un CUP d’un produit va être trop long; il va contenir
+	 * plus de 12 chiffres.
+	 * 
+	 * Résultat attendu : On devrait obtenir une UpcTooLongException car le CUP est
+	 * invalide
 	 */
 	@Test
-	public void test3() {
+	public void tooLongUPC() {
 		grocery.add(new Item(Upc.generateCode("128049185012"), "Beef", 1, 7));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 2));
 		assertThrows(UpcTooLongException.class, () -> {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test4 de la doc
+	 * On va tester le cas où un CUP d’un produit va être de la bonne taille,
+	 * cependant son chiffre de confirmation sera erroné.
+	 * 
+	 * Résultat attendu : On devrait obtenir une InvalidCheckDigitException car le
+	 * CUP est invalide
 	 */
 	@Test
-	public void test4() {
+	public void invalidUPCCheckDigit() {
 		String CUP = "123456789125";
-		grocery.add(new Item(CUP,"Beef", 1, 4));
+		grocery.add(new Item(CUP, "Beef", 1, 4));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 2));
 		assertThrows(InvalidCheckDigitException.class, () -> {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test5 de la doc
+	 * On teste le cas où le prix d’un article est négatif.
+	 * 
+	 * Résultat attendu : On devrait obtenir une AmountException
 	 */
 	@Test
-	public void test5() {
+	public void negativeAmount() {
 		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, -1));
 		grocery.add(new Item(Upc.generateCode("52345678901"), "Reduction Bananas", 1, 0.5));
 		assertThrows(AmountException.class, () -> {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test6 de la doc
+	 * On va tester le cas où un produit va posséder un prix à l’unité trop
+	 * important, à savoir de plus de 35 dollars
+	 * 
+	 * Résultat attendu : On devrait obtenir une AmountException car le prix est
+	 * trop cher
 	 */
 	@Test
-	public void test6() {
+	public void amountTooHigh() {
 		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 37));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 2));
 		grocery.add(new Item(Upc.generateCode("12804918502"), "Beef", 1, 7));
@@ -129,12 +152,16 @@ public class RegisterTest {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test7 de la doc
+	 * On va tester le cas où un produit pesable possède un CUP qui ne commence pas
+	 * par 2
+	 * 
+	 * Résultat attendu : On devrait obtenir une InvalidQuantityForCategoryException
+	 * car le CUP est invalide
 	 */
 	@Test
-	public void test7() {
+	public void weightableItemUPCDoesNotBeginBy2() {
 		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1.4, 3));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 2));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", -1, 2));
@@ -142,56 +169,70 @@ public class RegisterTest {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test8 de la doc
+	 * On va tester le cas où un produit non-pesable possède un CUP qui commence pas
+	 * par 2, alors que celui-ci est réservé aux articles pesables
+	 * 
+	 * Résultat attendu : On devrait obtenir une InvalidQuantityForCategoryException
+	 * car le CUP est invalide
 	 */
 	@Test
-	public void test8() {
+	public void nonWeightableItemThatsBeginBy2() {
 		grocery.add(new Item(Upc.generateCode("22345678901"), "Livres", 2, 20));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 2));
 		assertThrows(InvalidQuantityForCategoryException.class, () -> {
 			register.print(grocery);
 		});
 	}
-	
-	
+
 	/*
-	 * Test qui correspond au test9 de la doc
+	 * On va tester le cas où la liste de courses est vide
+	 * 
+	 * Résultat attendu : On devrait obtenir une EmptyGroceryListException car la
+	 * liste doit posséder entre 1 et 10 articles différents.
 	 */
 	@Test
-	public void test9() {
+	public void emptyList() {
 		assertThrows(EmptyGroceryListException.class, () -> {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test10 de la doc
+	 * On va tester le cas où la liste de courses est trop remplie, à savoir plus de
+	 * 10 articles
+	 * 
+	 * Résultat attendu : On devrait obtenir une TooManyItemsException car la liste
+	 * doit posséder entre 1 et 10 articles différents.
 	 */
 	@Test
-	public void test10() {
+	public void tooMuchItemsInList() {
 		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 3));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 2));
 		grocery.add(new Item(Upc.generateCode("12804918502"), "Beef", 1, 7));
 		grocery.add(new Item(Upc.generateCode("12804918503"), "Carrot", 1, 3));
 		grocery.add(new Item(Upc.generateCode("12804918504"), "Chocolate", 1, 5));
-        grocery.add(new Item(Upc.generateCode("64748119599"), "Chewing gum", 2, 0.99));
-        grocery.add(new Item(Upc.generateCode("44348225996"), "Gobstoppers", 1, 0.99));
-        grocery.add(new Item(Upc.generateCode("34323432343"), "Nerds", 2, 1.44));
-        grocery.add(new Item(Upc.generateCode("14323432343"), "Doritos Club", 1, 0.5));
-        grocery.add(new Item(Upc.generateCode("61519314159"), "Doritos", 1, 1.25));
-        grocery.add(new Item(Upc.generateCode("11519314158"), "Chips", 1, 1.25));
+		grocery.add(new Item(Upc.generateCode("64748119599"), "Chewing gum", 2, 0.99));
+		grocery.add(new Item(Upc.generateCode("44348225996"), "Gobstoppers", 1, 0.99));
+		grocery.add(new Item(Upc.generateCode("34323432343"), "Nerds", 2, 1.44));
+		grocery.add(new Item(Upc.generateCode("14323432343"), "Doritos Club", 1, 0.5));
+		grocery.add(new Item(Upc.generateCode("61519314159"), "Doritos", 1, 1.25));
+		grocery.add(new Item(Upc.generateCode("11519314158"), "Chips", 1, 1.25));
 		assertThrows(TooManyItemsException.class, () -> {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test11 de la doc
+	 * On va tester le cas où un rabais a une valeur négative, ce qui est incorrect
+	 * car il doit avoir une valeur positive
+	 * 
+	 * Résultat attendu : On ne devrait pas obtenir de rabais mais il ne devrait pas
+	 * y avoir d’exception
 	 */
 	@Test
-	public void test11() {
+	public void negativeDiscount() {
 		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 1, 3));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 6));
 		grocery.add(new Item(Upc.generateCode("52804918500"), "Reduction Flower", 1, -2));
@@ -199,115 +240,142 @@ public class RegisterTest {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test12 de la doc
+	 * On va tester le cas où un rabais a une valeur trop importante, ce qui est
+	 * incorrect car il doit avoir une valeur inférieure à celle des courses
+	 * 
+	 * Résultat attendu : On ne devrait pas obtenir de rabais mais il ne devrait pas
+	 * y avoir d’exception
 	 */
 	@Test
-	public void test12() {
+	public void discountAmountTooHigh() {
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 1, 6));
 		grocery.add(new Item(Upc.generateCode("52804918500"), "Flower", 1, 8));
 		System.out.print(register.print(grocery));
 	}
-	
+
 	/*
-	 * Test qui correspond au test13 de la doc
+	 * On va tester le cas où un CUP d’un coupon va être trop court, il va contenir
+	 * moins de 12 chiffres.
+	 * 
+	 * Résultat attendu : On devrait obtenir une UpcTooShortException car le CUP est
+	 * invalide
 	 */
 	@Test
-	public void test13() {
+	public void tooShortDiscountUPC() {
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 1, 6));
 		assertThrows(UpcTooShortException.class, () -> {
 			grocery.add(new Item(Upc.generateCode("528049"), "Flower", 1, 2));
 			grocery.add(new Item(Upc.generateCode("22804918500"), "Beef", 0.5, 6));
 			register.print(grocery);
-		});	
+		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test14 de la doc
+	 * On va tester le cas où un CUP d’un coupon va être trop long, il va contenir
+	 * plus de 12 chiffres.
+	 * 
+	 * Résultat attendu : On devrait obtenir une UpcTooLongException car le CUP est
+	 * invalide
 	 */
 	@Test
-	public void test14() {
+	public void tooLongDiscountUPC() {
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 1, 6));
 		grocery.add(new Item(Upc.generateCode("5280492123211"), "Reduction Flower", 1, 2));
 		grocery.add(new Item(Upc.generateCode("22804918500"), "Beef", 0.5, 6));
 		assertThrows(UpcTooLongException.class, () -> {
 			register.print(grocery);
-		});	
+		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test15 de la doc
+	 * On va tester le cas où un CUP d’un coupon va être de la bonne taille,
+	 * cependant son chiffre de confirmation sera erroné.
+	 * 
+	 * Résultat attendu : On devrait obtenir une InvalidCheckDigitException car le
+	 * CUP est invalide
 	 */
 	@Test
-	public void test15() {
+	public void invalidDiscountUPCCheckDigit() {
+		String CUP = "528049212322";
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 1, 6));
-		grocery.add(new Item(Upc.generateCode("92804921232"), "Reduction Flower", 1, 2));
-		register.print(grocery);
+		grocery.add(new Item(CUP, "Reduction Flower", 1, 2));
+		assertThrows(InvalidCheckDigitException.class, () -> {
+			register.print(grocery);
+		});
 	}
-	
-	
+
 	/*
-	 * Test qui correspond au test16 de la doc
+	 * On teste le cas où l’on souhaite supprimer un article pas acheté précédemment
+	 * 
+	 * Résultat attendu : On devrait obtenir une NoSuchItemException puisqu’on
+	 * supprime des articles inexistants
 	 */
 	@Test
-	public void test16() {
+	public void removeNotBuyedItem() {
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 1, 6));
 		grocery.add(new Item(Upc.generateCode("13044968430"), "Beef", -1, 5));
 		assertThrows(NoSuchItemException.class, () -> {
 			register.print(grocery);
 		});
 	}
-	
+
 	/*
-	 * Test qui correspond au test17 de la doc
+	 * On teste le cas où l’on souhaite supprimer plus d’articles qu’il y en a sur
+	 * le reçu.
+	 * 
+	 * Résultat attendu : On devrait obtenir une NoSuchItemException puisqu’on
+	 * supprime plus d’articles qu’il en existe
 	 */
 	@Test
-	public void test17() {
+	public void removeTooMuchItems() {
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 3));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", -4, 3));
 		assertThrows(NoSuchItemException.class, () -> {
 			register.print(grocery);
 		});
 	}
-	
-	
+
 	/*
-	 * Test qui correspond au test18 de la doc
+	 * On souhaite tester le cas où l’on a moins de 5 articles différents
+	 * 
+	 * Résultat attendu : On ne devrait pas obtenir de rabais de 1$ pour cette
+	 * facture mais tout fonctionne
 	 */
 	@Test
-	public void test18() {
+	public void lessThan5Items() {
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 3, 3));
 		grocery.add(new Item(Upc.generateCode("22804918501"), "Beef", 0.5, 1));
 		System.out.print(register.print(grocery));
 	}
-	
+
 	/*
-	 * Test qui correspond au test19 de la doc
+	 * On teste le cas où l’on a plus de 5 articles, mais sans être des articles
+	 * différents (donc même CUP)
+	 * 
+	 * Résultat attendu : On ne devrait pas obtenir de rabais de 1$ pour cette
+	 * facture mais tout fonctionne
 	 */
 	@Test
-	public void test19() {
+	public void moreThan5ItemsButNotDifferents() {
 		grocery.add(new Item(Upc.generateCode("12345678901"), "Bananas", 7, 3));
 		grocery.add(new Item(Upc.generateCode("12804918500"), "Flower", 1, 2));
 		grocery.add(new Item(Upc.generateCode("12804918502"), "Beef", 1, 7));
 		grocery.add(new Item(Upc.generateCode("12804918503"), "Carrot", 1, 3));
 		System.out.print(register.print(grocery));
 	}
-	
-	
-	
-		/******************************************************************************************************
-		 *  																								  *
-		 *  					 /!\ ATTENTION COMMENTAIRE IMPORTANT										  *
-		 *  																								  *
-		 *  Voici les tests que nous avons réalisés avant de faire la combinaison des classes en test.		  *
-		 *  En effet, nous avons commencé par réalisés ces tests avant de nous rendre compte de notre erreur. *
-		 *  Nous avons donc choisi de les laisser commentés afin que vous apperceviez notre progression	      *
-		 *  																								  *
-		 *   																								  * 
-		 ******************************************************************************************************/
 
-	
+	/******************************************************************************************************
+	 *  																								  *
+	 *  					 					/!\ COMMENTAIRE							  				  *
+	 *  																								  *
+	 *  Voici les tests que nous avons réalisés avant de faire la combinaison des classes en test.		  *
+	 *  En effet, nous avons commencé par réalisés ces tests avant de nous rendre compte de notre erreur. *
+	 *  Nous avons donc choisi de les laisser commentés afin que vous apperceviez notre progression	      *
+	 *  																								  *
+	 *   																								  * 
+	 ******************************************************************************************************/
 	
 //	 * On vérifie que la taille du rouleau de papier est suffisante pour toutes les
 //	 * infos à écrire sur le reçu
@@ -700,10 +768,5 @@ public class RegisterTest {
 //		grocery.add(new Item(Upc.generateCode("12804918502"), "Sheep", 1, 0.1));
 //		System.out.print(register.print(grocery));
 //	}
-	
-	
-	
-	
-	
-	
+
 }

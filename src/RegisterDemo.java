@@ -68,4 +68,5 @@ public class RegisterDemo {
         System.out.println(register.print(grocery));
         // No more paper! An exception will be thrown.
     }
+
 }
